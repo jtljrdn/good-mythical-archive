@@ -1,11 +1,11 @@
 import { betterAuth } from "better-auth";
+import { apiKey } from "@better-auth/api-key";
+import { admin } from "better-auth/plugins";
 import { Pool } from "pg";
 
-const dialect = new Pool({
-  connectionString: "postgresql://postgres:password@localhost:5432/database",
-});
-
 export const auth = betterAuth({
-  database: { dialect, type: "postgresql" },
-  baseURL: "http://localhost:3000/",
+  database: new Pool({
+    connectionString: process.env.DATABASE_URL,
+  }),
+  plugins: [apiKey(), admin()],
 });
