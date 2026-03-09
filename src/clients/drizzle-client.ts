@@ -6,14 +6,15 @@ import postgres from "postgres";
 import { z } from "zod";
 
 import * as schema from "../db/schema";
+import * as relations from "../db/relations";
 
 const SUPABASE_DATABASE_URL = z.url().parse(process.env.DATABASE_URL!);
 
 // Configuration setup
 const config = {
   casing: "snake_case",
-  schema,
-} satisfies DrizzleConfig<typeof schema>;
+  schema: { ...schema, ...relations },
+} satisfies DrizzleConfig<typeof schema & typeof relations>;
 
 // Create both admin and RLS-protected clients
 export const adminClient = drizzle({

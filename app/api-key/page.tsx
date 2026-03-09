@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Key, Copy, Check, Terminal, AlertTriangle } from "lucide-react";
+import {
+  Key,
+  Copy,
+  Check,
+  Terminal,
+  AlertTriangle,
+  ArrowRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Link from "next/link";
 
 export default function ApiKeyPage() {
   const [name, setName] = useState("");
@@ -154,19 +162,26 @@ export default function ApiKeyPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <pre className="overflow-x-auto rounded-md bg-muted px-4 py-3 font-mono text-xs leading-relaxed">
-            <span className="text-muted-foreground">
-              {"# Fetch episodes\n"}
-            </span>
-            {"curl -H "}
-            <span className="text-primary">
-              {'"Authorization: Bearer YOUR_API_KEY"'}
-            </span>
-            {" \\\n  "}
-            <span className="text-muted-foreground">
-              {`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000"}/api/gmm/videos`}
-            </span>
-          </pre>
+          <div className="mb-4">
+            <Link href="docs" className="text-sm text-muted-foreground">
+              <p>View the API reference</p>
+            </Link>
+          </div>
+          <div>
+            <pre className="overflow-x-auto rounded-md bg-muted px-4 py-3 font-mono text-xs leading-relaxed">
+              <span className="text-muted-foreground">
+                {"# Fetch episodes\n"}
+              </span>
+              {"curl -H "}
+              <span className="text-primary">
+                {'"Authorization: Bearer YOUR_API_KEY"'}
+              </span>
+              {" \\\n  "}
+              <span className="text-muted-foreground">
+                {`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000"}/api/gmm/videos`}
+              </span>
+            </pre>
+          </div>
         </CardContent>
       </Card>
     </div>

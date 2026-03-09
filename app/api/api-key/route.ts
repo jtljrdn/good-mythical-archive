@@ -1,8 +1,12 @@
 import { auth } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
+import { adminClient } from "@/src/clients/drizzle-client";
+import { user } from "@/src/db/schema";
+import { eq } from "drizzle-orm";
 
 const ALLOWED_ORIGIN = process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
+const SYSTEM_EMAIL = "system@good-mythical-archive.internal";
 
 export async function POST(request: NextRequest) {
     const origin = request.headers.get("origin");
@@ -29,6 +33,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!apiKey) {
+        logger.error("Failed to create API key");
         return NextResponse.json({ error: "Something went wrong :(" }, { status: 500 });
     }
 
@@ -38,12 +43,11 @@ export async function POST(request: NextRequest) {
 }
 
 async function getOrCreateSystemUser() {
-    const SYSTEM_EMAIL = "system@good-mythical-archive.internal";
-
-    const existing = await auth.api
-        .listUsers({ query: { searchField: "email", searchValue: SYSTEM_EMAIL } })
-        .then((res: { users: { id: string }[] }) => res.users[0])
-        .catch(() => null);
+    const [existing] = await adminClient
+        .select({ id: user.id })
+        .from(user)
+        .where(eq(user.email, SYSTEM_EMAIL))
+        .limit(1);
 
     if (existing) return existing;
 
@@ -55,8 +59,7 @@ async function getOrCreateSystemUser() {
         },
     });
 
-    const user = "user" in result ? result.user : result;
-
+    const created = "user" in result ? result.user : result;
     logger.log("Created system user for API key ownership");
-    return user;
+    return created;
 }
