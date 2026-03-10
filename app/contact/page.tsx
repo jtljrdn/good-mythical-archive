@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import { Mail, Globe, ArrowUpRight } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Contact",
+  description:
+    "Get in touch with the Mythidex team — questions, suggestions, or feedback.",
+};
 
 const contacts = [
   {

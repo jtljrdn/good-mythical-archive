@@ -145,6 +145,33 @@ export async function getDistinctCategories(): Promise<string[]> {
   return rows.map((r) => r.category).filter((c): c is string => c !== null);
 }
 
+export async function getEpisodeByNumber(episodeNumber: number): Promise<Episode | null> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("episodes");
+
+  const rows = await publicClient
+    .select()
+    .from(gmmVideos)
+    .where(sql`${gmmVideos.episode} = ${episodeNumber}`)
+    .limit(1);
+
+  return rows.length > 0 ? mapRowToEpisode(rows[0]) : null;
+}
+
+export async function getAllEpisodeNumbers(): Promise<number[]> {
+  "use cache";
+  cacheLife("days");
+  cacheTag("episodes");
+
+  const rows = await publicClient
+    .select({ episode: gmmVideos.episode })
+    .from(gmmVideos)
+    .orderBy(desc(gmmVideos.episode));
+
+  return rows.map((r) => r.episode);
+}
+
 export async function getTotalEpisodeCount(): Promise<number> {
   "use cache";
   cacheLife("hours");

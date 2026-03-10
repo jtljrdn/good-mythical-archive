@@ -75,6 +75,28 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
+        {/* JSON-LD WebSite schema for Google sitelinks search box — static data, no user input */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Mythidex",
+              url: "https://mythidex.dev",
+              description: siteDescription,
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate:
+                    "https://mythidex.dev/?search={search_term_string}",
+                },
+                "query-input": "required name=search_term_string",
+              },
+            }),
+          }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
