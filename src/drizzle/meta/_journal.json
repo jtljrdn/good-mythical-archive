@@ -43,6 +43,13 @@
       "when": 1773103050805,
       "tag": "0005_spicy_viper",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1773310000000,
+      "tag": "0006_add_pg_trgm_fuzzy_search",
+      "breakpoints": true
     }
   ]
 }

@@ -19,6 +19,7 @@ export interface Episode {
 
 export interface EpisodeSearchParams {
   search?: string;
+  fuzzy?: boolean;
   seasons?: number[];
   categories?: string[];
   sortOrder?: "asc" | "desc";

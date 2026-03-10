@@ -75,7 +75,7 @@ export default function ApiKeyPage() {
         </div>
         <p className="text-sm text-muted-foreground">
           Generate an API key to access the Good Mythical Archive REST API. Keys
-          are free and don't require an account.
+          are free and don't require an account, though are subject to rate limits.
         </p>
       </div>
 
@@ -128,7 +128,7 @@ export default function ApiKeyPage() {
               Key created
             </CardTitle>
             <CardDescription>
-              Copy your key now. You won&apos;t be able to see it again.
+              Copy your key now. You won't be able to see it again.
             </CardDescription>
           </CardHeader>
           <CardContent>

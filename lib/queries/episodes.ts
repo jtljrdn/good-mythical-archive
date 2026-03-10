@@ -32,19 +32,31 @@ export async function searchEpisodes(
 ): Promise<PaginatedResponse<Episode>> {
   const {
     search,
+    fuzzy = false,
     seasons,
     categories,
     sortOrder = "desc",
-    page = 1,
-    limit = 24,
   } = params;
 
+  // Clamp page and limit to safe values (Issue 9)
+  const page = Math.max(1, params.page ?? 1);
+  const limit = Math.min(100, Math.max(1, params.limit ?? 24));
+
   const conditions: SQL[] = [];
+  const useFuzzy = fuzzy && !!search;
 
   if (search) {
-    // Escape SQL ILIKE wildcards to prevent pattern-based data extraction
-    const escapedSearch = search.replace(/%/g, '\\%').replace(/_/g, '\\_');
-    conditions.push(ilike(gmmVideos.title, `%${escapedSearch}%`));
+    if (useFuzzy) {
+      // Use the % operator for GIN index-accelerated trigram filtering (pg_trgm).
+      // The % operator uses pg_trgm's similarity threshold (default 0.3).
+      // similarity() is only used in ORDER BY for relevance ranking on matched rows.
+      // Note: NULL titles are excluded by the % operator (same as ILIKE), which is consistent.
+      conditions.push(sql`${gmmVideos.title} % ${search}`);
+    } else {
+      // Escape SQL ILIKE wildcards to prevent pattern-based data extraction
+      const escapedSearch = search.replace(/%/g, '\\%').replace(/_/g, '\\_');
+      conditions.push(ilike(gmmVideos.title, `%${escapedSearch}%`));
+    }
   }
   if (seasons && seasons.length > 0) {
     conditions.push(inArray(gmmVideos.season, seasons));
@@ -54,7 +66,13 @@ export async function searchEpisodes(
   }
 
   const where = conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined;
-  const orderBy = sortOrder === "asc" ? asc(gmmVideos.episode) : desc(gmmVideos.episode);
+
+  // When fuzzy searching, results are sorted by relevance (similarity score)
+  // regardless of the sortOrder parameter. This is intentional — fuzzy search
+  // results are only meaningful when ranked by match quality.
+  const orderBy = useFuzzy
+    ? sql`similarity(${gmmVideos.title}, ${search}) DESC`
+    : sortOrder === "asc" ? asc(gmmVideos.episode) : desc(gmmVideos.episode);
   const offset = (page - 1) * limit;
 
   const [rows, totalResult] = await Promise.all([

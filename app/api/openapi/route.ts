@@ -6,7 +6,7 @@ const openApiSpec = {
     title: "Good Mythical Archive API",
     description:
       "RESTful API for accessing the Good Mythical Morning episode archive. Requires an API key for authentication.",
-    version: "0.2.0",
+    version: "0.3.0",
   },
   servers: [
     {
@@ -22,10 +22,10 @@ const openApiSpec = {
   components: {
     securitySchemes: {
       apiKey: {
-        type: "apiKey",
-        in: "header",
-        name: "x-api-key",
-        description: "API key for authentication",
+        type: "http",
+        scheme: "bearer",
+        description:
+          "API key passed as a Bearer token in the Authorization header",
       },
     },
     schemas: {
@@ -154,20 +154,34 @@ const openApiSpec = {
           {
             name: "search",
             in: "query",
-            schema: { type: "string" },
-            description: "Search query to filter videos by title",
+            schema: { type: "string", maxLength: 200 },
+            description:
+              "Search query to filter videos by title (max 200 characters). Uses substring matching by default, or trigram similarity when fuzzy=true.",
           },
           {
-            name: "season",
+            name: "fuzzy",
             in: "query",
-            schema: { type: "integer" },
-            description: "Filter by season number",
+            schema: { type: "boolean", default: false },
+            description:
+              "Enable fuzzy search. When true, uses trigram similarity matching to find titles even with typos or partial matches. Results are always sorted by relevance regardless of the sort parameter. Requires the search parameter.",
           },
           {
-            name: "category",
+            name: "seasons",
             in: "query",
             schema: { type: "string" },
-            description: "Filter by category",
+            description: "Comma-separated list of season numbers to filter by (e.g. \"1,2,3\")",
+          },
+          {
+            name: "categories",
+            in: "query",
+            schema: { type: "string" },
+            description: "Comma-separated list of categories to filter by",
+          },
+          {
+            name: "sort",
+            in: "query",
+            schema: { type: "string", enum: ["asc", "desc"], default: "desc" },
+            description: "Sort order by episode number. Ignored when fuzzy=true (results are sorted by relevance instead).",
           },
         ],
         responses: {
@@ -181,6 +195,88 @@ const openApiSpec = {
           },
           "401": {
             description: "Unauthorized - invalid or missing API key",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+          "500": {
+            description: "Internal server error",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/episodes": {
+      get: {
+        operationId: "getEpisodes",
+        summary: "List episodes (public)",
+        description:
+          "Retrieve a paginated list of Good Mythical Morning episodes. This endpoint does not require authentication.",
+        tags: ["Episodes"],
+        security: [],
+        parameters: [
+          {
+            name: "page",
+            in: "query",
+            schema: { type: "integer", default: 1 },
+            description: "Page number",
+          },
+          {
+            name: "limit",
+            in: "query",
+            schema: { type: "integer", default: 24 },
+            description: "Number of results per page (max 100)",
+          },
+          {
+            name: "search",
+            in: "query",
+            schema: { type: "string", maxLength: 200 },
+            description:
+              "Search query to filter episodes by title (max 200 characters). Uses substring matching by default, or trigram similarity when fuzzy=true.",
+          },
+          {
+            name: "fuzzy",
+            in: "query",
+            schema: { type: "boolean", default: false },
+            description:
+              "Enable fuzzy search. When true, uses trigram similarity matching to find titles even with typos or partial matches. Results are always sorted by relevance regardless of the sort parameter. Requires the search parameter.",
+          },
+          {
+            name: "seasons",
+            in: "query",
+            schema: { type: "string" },
+            description: "Comma-separated list of season numbers to filter by (e.g. \"1,2,3\")",
+          },
+          {
+            name: "categories",
+            in: "query",
+            schema: { type: "string" },
+            description: "Comma-separated list of categories to filter by",
+          },
+          {
+            name: "sort",
+            in: "query",
+            schema: { type: "string", enum: ["asc", "desc"], default: "desc" },
+            description: "Sort order by episode number. Ignored when fuzzy=true (results are sorted by relevance instead).",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "A paginated list of episodes",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/PaginatedResponse" },
+              },
+            },
+          },
+          "500": {
+            description: "Internal server error",
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Error" },

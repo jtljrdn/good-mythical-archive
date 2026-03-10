@@ -128,6 +128,7 @@ export const gmmVideos = pgTable("gmm_videos", {
 	index("gmm_videos_gmm_episode_number_idx").using("btree", table.gmmEpisodeNumber.asc().nullsLast().op("int8_ops")),
 	index("gmm_videos_season_idx").using("btree", table.season.asc().nullsLast().op("int8_ops")),
 	index("gmm_videos_title_idx").using("btree", table.title.asc().nullsLast().op("text_ops")),
+	index("gmm_videos_title_trgm_idx").using("gin", sql`${table.title} gin_trgm_ops`),
 	uniqueIndex("gmm_videos_video_url_idx").using("btree", table.videoUrl.asc().nullsLast().op("text_ops")),
 	pgPolicy("Enable read access for all users", { as: "permissive", for: "select", to: ["public"], using: sql`true` }),
 ]);
