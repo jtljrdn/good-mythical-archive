@@ -10,7 +10,7 @@ const SYSTEM_EMAIL = "system@good-mythical-archive.internal";
 
 export async function POST(request: NextRequest) {
     const origin = request.headers.get("origin");
-    if (!origin || !ALLOWED_ORIGIN.startsWith(origin)) {
+    if (!origin || new URL(ALLOWED_ORIGIN).origin !== origin) {
         return NextResponse.json(
             { error: "API keys can only be created from the website" },
             { status: 403 },
