@@ -7,6 +7,29 @@ const MAX_SEARCH_LENGTH = 200;
 
 export async function GET(request: NextRequest) {
   try {
+    // Only allow requests from the same origin (website use only)
+    const referer = request.headers.get("referer");
+    const origin = request.headers.get("origin");
+    const host = request.headers.get("host");
+
+    let isInternalRequest: boolean;
+    try {
+      isInternalRequest =
+        (referer && host && new URL(referer).host === host) ||
+        (origin && host && new URL(origin).host === host) ||
+        (!referer && !origin); // Server-side rendering (same process)
+    } catch {
+      // Malformed Referer/Origin URL
+      isInternalRequest = false;
+    }
+
+    if (!isInternalRequest) {
+      return NextResponse.json(
+        { error: "This endpoint is for internal use only. Use /api/gmm/videos with an API key for external access." },
+        { status: 403, headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
     const params = request.nextUrl.searchParams;
 
     const rawSearch = params.get("search") || undefined;
@@ -32,12 +55,16 @@ export async function GET(request: NextRequest) {
       limit,
     });
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: {
+        "Cache-Control": "private, no-cache",
+      },
+    });
   } catch (error) {
     console.error("GET /api/episodes failed:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500, headers: { "Cache-Control": "no-store" } }
     );
   }
 }

@@ -74,7 +74,7 @@ export default function ApiKeyPage() {
           <h1 className="text-2xl font-bold tracking-tight">API Access</h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Generate an API key to access the Good Mythical Archive REST API. Keys
+          Generate an API key to access the Mythidex REST API. Keys
           are free and don't require an account, though are subject to rate limits.
         </p>
       </div>

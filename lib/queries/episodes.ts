@@ -1,6 +1,8 @@
 import "server-only";
 
 import { sql, ilike, inArray, asc, desc, count, SQL } from "drizzle-orm";
+import { cacheLife } from "next/cache";
+import { cacheTag } from "next/cache";
 import { publicClient } from "@/src/clients/drizzle-client";
 import { gmmVideos } from "@/src/db/schema";
 import { getYoutubeThumbnailUrl } from "@/lib/youtube";
@@ -30,20 +32,35 @@ function mapRowToEpisode(row: typeof gmmVideos.$inferSelect): Episode {
 export async function searchEpisodes(
   params: EpisodeSearchParams
 ): Promise<PaginatedResponse<Episode>> {
-  const {
-    search,
-    fuzzy = false,
-    seasons,
-    categories,
-    sortOrder = "desc",
-  } = params;
+  // Normalize all params to explicit defaults before calling cached inner function
+  // to avoid cache key fragmentation (Issue #2) and reduce cardinality (Issue #7)
+  const normalizedSearch = params.search ? params.search.trim().toLowerCase() : "";
+  const normalized = {
+    search: normalizedSearch,
+    fuzzy: params.fuzzy ?? false,
+    seasons: params.seasons ?? [],
+    categories: params.categories ?? [],
+    sortOrder: params.sortOrder ?? "desc" as const,
+    page: Math.max(1, params.page ?? 1),
+    limit: Math.min(100, Math.max(1, params.limit ?? 24)),
+  };
 
-  // Clamp page and limit to safe values (Issue 9)
-  const page = Math.max(1, params.page ?? 1);
-  const limit = Math.min(100, Math.max(1, params.limit ?? 24));
+  return cachedSearchEpisodes(normalized);
+}
+
+async function cachedSearchEpisodes(
+  params: Required<{ search: string; fuzzy: boolean; seasons: number[]; categories: string[]; sortOrder: "asc" | "desc"; page: number; limit: number }>
+): Promise<PaginatedResponse<Episode>> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("episodes");
+
+  const { search, fuzzy, seasons, categories, sortOrder, page, limit } = params;
 
   const conditions: SQL[] = [];
-  const useFuzzy = fuzzy && !!search;
+  // Trigrams require at least 3 characters to produce meaningful matches;
+  // fall back to ILIKE for shorter search terms.
+  const useFuzzy = fuzzy && search.length >= 3;
 
   if (search) {
     if (useFuzzy) {
@@ -58,10 +75,10 @@ export async function searchEpisodes(
       conditions.push(ilike(gmmVideos.title, `%${escapedSearch}%`));
     }
   }
-  if (seasons && seasons.length > 0) {
+  if (seasons.length > 0) {
     conditions.push(inArray(gmmVideos.season, seasons));
   }
-  if (categories && categories.length > 0) {
+  if (categories.length > 0) {
     conditions.push(inArray(gmmVideos.category, categories));
   }
 
@@ -101,6 +118,10 @@ export async function searchEpisodes(
 }
 
 export async function getDistinctSeasons(): Promise<number[]> {
+  "use cache";
+  cacheLife("days");
+  cacheTag("metadata", "seasons");
+
   const rows = await publicClient
     .selectDistinct({ season: gmmVideos.season })
     .from(gmmVideos)
@@ -111,6 +132,10 @@ export async function getDistinctSeasons(): Promise<number[]> {
 }
 
 export async function getDistinctCategories(): Promise<string[]> {
+  "use cache";
+  cacheLife("days");
+  cacheTag("metadata", "categories");
+
   const rows = await publicClient
     .selectDistinct({ category: gmmVideos.category })
     .from(gmmVideos)
@@ -121,6 +146,10 @@ export async function getDistinctCategories(): Promise<string[]> {
 }
 
 export async function getTotalEpisodeCount(): Promise<number> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("episodes");
+
   const result = await publicClient
     .select({ count: count() })
     .from(gmmVideos);

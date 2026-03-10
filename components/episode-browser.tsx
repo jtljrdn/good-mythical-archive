@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Navbar } from "@/components/navbar";
 import { FilterSidebar } from "@/components/filter-sidebar";
 import { EpisodeGrid } from "@/components/episode-grid";
 import type { Episode, PaginatedResponse } from "@/lib/types";
@@ -146,8 +145,7 @@ export function EpisodeBrowser({
 
   return (
     <>
-      <Navbar totalEpisodes={initialData.total} filteredCount={total} />
-      <div className="flex flex-1 pt-14">
+      <div className="flex flex-1">
         <FilterSidebar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}

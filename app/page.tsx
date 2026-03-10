@@ -5,8 +5,6 @@ import {
   getDistinctCategories,
 } from "@/lib/queries/episodes";
 
-export const dynamic = "force-dynamic";
-
 export default async function Page() {
   const [initialData, seasons, categories] = await Promise.all([
     searchEpisodes({ page: 1, limit: 24, sortOrder: "desc" }),

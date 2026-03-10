@@ -32,8 +32,8 @@ const MORE_LINKS: NavLink[] = [
 ];
 
 interface NavbarProps {
-  totalEpisodes: number;
-  filteredCount: number;
+  totalEpisodes?: number;
+  filteredCount?: number;
 }
 
 export function Navbar({ totalEpisodes, filteredCount }: NavbarProps) {
@@ -44,11 +44,13 @@ export function Navbar({ totalEpisodes, filteredCount }: NavbarProps) {
         <PlayCircle className="size-7 text-primary" />
         <div className="flex flex-col">
           <span className="text-sm font-bold leading-tight">
-            Good Mythical Archive
+            Mythidex
           </span>
-          <span className="text-xs text-muted-foreground leading-tight">
-            {filteredCount} of {totalEpisodes} episodes
-          </span>
+          {totalEpisodes != null && filteredCount != null && (
+            <span className="text-xs text-muted-foreground leading-tight">
+              {filteredCount} of {totalEpisodes} episodes
+            </span>
+          )}
         </div>
       </div>
 

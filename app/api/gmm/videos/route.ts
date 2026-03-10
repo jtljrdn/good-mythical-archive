@@ -36,12 +36,16 @@ export async function GET(request: NextRequest) {
       limit,
     });
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: {
+        "Cache-Control": "private, max-age=60",
+      },
+    });
   } catch (error) {
     console.error("GET /api/gmm/videos failed:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500, headers: { "Cache-Control": "no-store" } }
     );
   }
 }
