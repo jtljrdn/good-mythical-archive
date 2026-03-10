@@ -56,6 +56,7 @@ export default function OGImage() {
         >
           <div
             style={{
+              display: "flex",
               fontSize: 96,
               fontWeight: 800,
               color: "#ffffff",
