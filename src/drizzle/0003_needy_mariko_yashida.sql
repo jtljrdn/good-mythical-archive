@@ -1,0 +1,1 @@
+CREATE INDEX "gmm_videos_season_idx" ON "gmm_videos" USING btree ("season");

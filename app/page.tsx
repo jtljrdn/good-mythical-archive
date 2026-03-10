@@ -1,71 +1,26 @@
-"use client";
+import { EpisodeBrowser } from "@/components/episode-browser";
+import {
+  searchEpisodes,
+  getDistinctSeasons,
+  getDistinctCategories,
+} from "@/lib/queries/episodes";
 
-import { useState, useMemo } from "react";
-import { Navbar } from "@/components/navbar";
-import { FilterSidebar } from "@/components/filter-sidebar";
-import { EpisodeGrid } from "@/components/episode-grid";
-import { MOCK_EPISODES } from "@/lib/mock-data";
+export const dynamic = "force-dynamic";
 
-export default function Page() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedSeasons, setSelectedSeasons] = useState<number[]>([]);
-
-  const filteredEpisodes = useMemo(() => {
-    return MOCK_EPISODES.filter((ep) => {
-      const query = searchQuery.toLowerCase();
-      if (
-        query &&
-        !ep.title.toLowerCase().includes(query) &&
-        !ep.description.toLowerCase().includes(query)
-      ) {
-        return false;
-      }
-      if (
-        selectedCategories.length > 0 &&
-        !selectedCategories.includes(ep.category)
-      ) {
-        return false;
-      }
-      if (selectedSeasons.length > 0 && !selectedSeasons.includes(ep.season)) {
-        return false;
-      }
-      return true;
-    });
-  }, [searchQuery, selectedCategories, selectedSeasons]);
-
-  function handleCategoryChange(category: string) {
-    setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
-    );
-  }
-
-  function handleSeasonToggle(season: number) {
-    setSelectedSeasons((prev) =>
-      prev.includes(season)
-        ? prev.filter((s) => s !== season)
-        : [...prev, season]
-    );
-  }
+export default async function Page() {
+  const [initialData, seasons, categories] = await Promise.all([
+    searchEpisodes({ page: 1, limit: 24, sortOrder: "desc" }),
+    getDistinctSeasons(),
+    getDistinctCategories(),
+  ]);
 
   return (
     <div className="flex min-h-screen flex-col">
-
-      <div className="flex flex-1">
-        <FilterSidebar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          selectedCategories={selectedCategories}
-          onCategoryChange={handleCategoryChange}
-          selectedSeasons={selectedSeasons}
-          onSeasonToggle={handleSeasonToggle}
-        />
-        <main className="flex-1 overflow-auto p-6">
-          <EpisodeGrid episodes={filteredEpisodes} />
-        </main>
-      </div>
+      <EpisodeBrowser
+        initialData={initialData}
+        seasons={seasons}
+        categories={categories}
+      />
     </div>
   );
 }

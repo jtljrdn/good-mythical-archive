@@ -1,59 +1,96 @@
-import { Eye, Clock } from "lucide-react";
+"use client";
+
+import { Eye, Users } from "lucide-react";
+import Image from "next/image";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { Episode } from "@/lib/mock-data";
-import { formatViewCount } from "@/lib/mock-data";
+import type { Episode } from "@/lib/types";
+import { formatSeason, formatViewCount } from "@/lib/format";
 
 interface EpisodeCardProps {
   episode: Episode;
 }
 
 export function EpisodeCard({ episode }: EpisodeCardProps) {
-  const formattedDate = new Date(episode.date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  const formattedDate = episode.releaseDate
+    ? new Date(episode.releaseDate).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : null;
 
   return (
-    <Card className="overflow-hidden transition-all hover:ring-2 hover:ring-primary/30">
-      {/* Thumbnail */}
-      <div className="relative aspect-video overflow-hidden">
-        <img
-          src={episode.thumbnailUrl}
-          alt={episode.title}
-          className="h-full w-full object-cover"
-        />
-        <Badge className="absolute top-2 left-2">{episode.category}</Badge>
-        <span className="absolute right-2 bottom-2 rounded bg-black/70 px-1.5 py-0.5 text-xs font-medium text-white">
-          {episode.duration}
-        </span>
-      </div>
+    <a
+      href={episode.videoUrl ?? undefined}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block"
+    >
+      <Card className="overflow-hidden transition-all hover:ring-2 hover:ring-primary/30">
+        {/* Thumbnail */}
+        <div className="relative aspect-video overflow-hidden bg-muted">
+          {episode.thumbnailUrl ? (
+            <Image
+              src={episode.thumbnailUrl}
+              alt={episode.title ?? "Episode thumbnail"}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
+              No thumbnail
+            </div>
+          )}
+          {episode.category && (
+            <Badge className="absolute top-2 left-2">{episode.category}</Badge>
+          )}
+          {episode.length && (
+            <span className="absolute right-2 bottom-2 rounded bg-black/70 px-1.5 py-0.5 text-xs font-medium text-white">
+              {episode.length}
+            </span>
+          )}
+        </div>
 
-      {/* Body */}
-      <CardContent className="p-3">
-        <p className="text-xs text-muted-foreground">
-          S{episode.season} E{episode.episodeNumber} &middot; {formattedDate}
-        </p>
-        <h3 className="mt-1 line-clamp-2 text-sm font-semibold leading-snug">
-          {episode.title}
-        </h3>
-        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-          {episode.description}
-        </p>
-      </CardContent>
+        {/* Body */}
+        <CardContent className="p-3">
+          <p className="text-xs text-muted-foreground">
+            {episode.season != null && formatSeason(episode.season)}
+            {episode.numberInSeason && `${episode.season != null ? " " : ""}E${episode.numberInSeason}`}
+            {formattedDate && (
+              <>
+                {(episode.season != null || episode.numberInSeason) && " \u00b7 "}
+                {formattedDate}
+              </>
+            )}
+          </p>
+          <h3 className="mt-1 line-clamp-2 text-sm font-semibold leading-snug">
+            {episode.title ?? "Untitled Episode"}
+          </h3>
+          {episode.description && (
+            <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+              {episode.description}
+            </p>
+          )}
+        </CardContent>
 
-      {/* Footer */}
-      <CardFooter className="flex items-center gap-3 px-3 pb-3 pt-0 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1">
-          <Eye className="size-3.5" />
-          {formatViewCount(episode.viewCount)}
-        </span>
-        <span className="flex items-center gap-1">
-          <Clock className="size-3.5" />
-          {episode.duration}
-        </span>
-      </CardFooter>
-    </Card>
+        {/* Footer */}
+        <CardFooter className="flex items-center gap-3 px-3 pb-3 pt-3 text-xs text-muted-foreground">
+          {episode.viewCount != null && (
+            <span className="flex items-center gap-1">
+              <Eye className="size-3.5" />
+              {formatViewCount(episode.viewCount)}
+            </span>
+          )}
+          {episode.guests && (
+            <span className="flex items-center gap-1">
+              <Users className="size-3.5" />
+              <span className="truncate max-w-[120px]">{episode.guests}</span>
+            </span>
+          )}
+        </CardFooter>
+      </Card>
+    </a>
   );
 }

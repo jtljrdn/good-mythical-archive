@@ -6,7 +6,7 @@ const openApiSpec = {
     title: "Good Mythical Archive API",
     description:
       "RESTful API for accessing the Good Mythical Morning episode archive. Requires an API key for authentication.",
-    version: "0.1.0",
+    version: "0.2.0",
   },
   servers: [
     {
@@ -32,16 +32,94 @@ const openApiSpec = {
       Video: {
         type: "object",
         properties: {
-          id: { type: "string", description: "Unique video identifier" },
-          title: { type: "string", description: "Episode title" },
-          description: { type: "string", description: "Episode description" },
-          publishedAt: {
-            type: "string",
-            format: "date-time",
-            description: "Publication date",
+          episode: {
+            type: "integer",
+            description: "Overall episode number (primary key)",
           },
-          thumbnailUrl: { type: "string", description: "Thumbnail image URL" },
-          videoId: { type: "string", description: "YouTube video ID" },
+          numberInSeason: {
+            type: "string",
+            nullable: true,
+            description: "Episode number within its season",
+          },
+          title: { type: "string", nullable: true, description: "Episode title" },
+          description: {
+            type: "string",
+            nullable: true,
+            description: "Episode description",
+          },
+          length: {
+            type: "string",
+            nullable: true,
+            description: 'Duration (e.g. "18:42")',
+          },
+          gmmoreTitle: {
+            type: "string",
+            nullable: true,
+            description: "Good Mythical MORE episode title",
+          },
+          releaseDate: {
+            type: "string",
+            nullable: true,
+            description: "Release date",
+          },
+          guests: {
+            type: "string",
+            nullable: true,
+            description: "Guest names",
+          },
+          videoUrl: {
+            type: "string",
+            nullable: true,
+            description: "YouTube video URL",
+          },
+          gmmoreUrl: {
+            type: "string",
+            nullable: true,
+            description: "Good Mythical MORE video URL",
+          },
+          gmmoreLength: {
+            type: "string",
+            nullable: true,
+            description: "Good Mythical MORE duration",
+          },
+          season: {
+            type: "integer",
+            nullable: true,
+            description: "Season number",
+          },
+          category: {
+            type: "string",
+            nullable: true,
+            description: "Episode category",
+          },
+          viewCount: {
+            type: "integer",
+            nullable: true,
+            description: "YouTube view count",
+          },
+          gmmEpisodeNumber: {
+            type: "integer",
+            nullable: true,
+            description: "Official GMM episode number",
+          },
+          thumbnailUrl: {
+            type: "string",
+            nullable: true,
+            description: "YouTube thumbnail URL (computed from videoUrl)",
+          },
+        },
+      },
+      PaginatedResponse: {
+        type: "object",
+        properties: {
+          data: {
+            type: "array",
+            items: { $ref: "#/components/schemas/Video" },
+          },
+          total: { type: "integer", description: "Total matching episodes" },
+          page: { type: "integer", description: "Current page number" },
+          limit: { type: "integer", description: "Results per page" },
+          totalPages: { type: "integer", description: "Total number of pages" },
         },
       },
       Error: {
@@ -71,7 +149,7 @@ const openApiSpec = {
             name: "limit",
             in: "query",
             schema: { type: "integer", default: 20 },
-            description: "Number of results per page",
+            description: "Number of results per page (max 100)",
           },
           {
             name: "search",
@@ -79,24 +157,25 @@ const openApiSpec = {
             schema: { type: "string" },
             description: "Search query to filter videos by title",
           },
+          {
+            name: "season",
+            in: "query",
+            schema: { type: "integer" },
+            description: "Filter by season number",
+          },
+          {
+            name: "category",
+            in: "query",
+            schema: { type: "string" },
+            description: "Filter by category",
+          },
         ],
         responses: {
           "200": {
-            description: "A list of videos",
+            description: "A paginated list of videos",
             content: {
               "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    data: {
-                      type: "array",
-                      items: { $ref: "#/components/schemas/Video" },
-                    },
-                    total: { type: "integer" },
-                    page: { type: "integer" },
-                    limit: { type: "integer" },
-                  },
-                },
+                schema: { $ref: "#/components/schemas/PaginatedResponse" },
               },
             },
           },

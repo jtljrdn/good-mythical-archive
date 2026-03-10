@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -14,7 +14,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { CATEGORIES, SEASONS } from "@/lib/mock-data";
+import { formatSeason } from "@/lib/format";
 
 interface FilterSidebarProps {
   searchQuery: string;
@@ -23,6 +23,10 @@ interface FilterSidebarProps {
   onCategoryChange: (category: string) => void;
   selectedSeasons: number[];
   onSeasonToggle: (season: number) => void;
+  sortOrder: "asc" | "desc";
+  onSortOrderChange: (order: "asc" | "desc") => void;
+  seasons: number[];
+  categories: string[];
 }
 
 export function FilterSidebar({
@@ -32,6 +36,10 @@ export function FilterSidebar({
   onCategoryChange,
   selectedSeasons,
   onSeasonToggle,
+  sortOrder,
+  onSortOrderChange,
+  seasons,
+  categories,
 }: FilterSidebarProps) {
   return (
     <aside className="hidden w-72 shrink-0 border-r bg-card lg:flex lg:flex-col">
@@ -55,53 +63,74 @@ export function FilterSidebar({
             />
           </InputGroup>
 
+          {/* Sort Order */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Sort by date</span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1 text-xs"
+              onClick={() =>
+                onSortOrderChange(sortOrder === "desc" ? "asc" : "desc")
+              }
+            >
+              <ArrowUpDown className="size-3.5" />
+              {sortOrder === "desc" ? "Newest" : "Oldest"}
+            </Button>
+          </div>
+
           {/* Categories */}
-          <Collapsible defaultOpen>
-            <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
-              Categories
-              <ChevronDown className="size-4 text-muted-foreground" />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-2 pt-1">
-              {CATEGORIES.map((category) => (
-                <label
-                  key={category}
-                  className="flex cursor-pointer items-center gap-2 text-sm"
-                >
-                  <Checkbox
-                    checked={selectedCategories.includes(category)}
-                    onCheckedChange={() => onCategoryChange(category)}
-                  />
-                  {category}
-                </label>
-              ))}
-            </CollapsibleContent>
-          </Collapsible>
+          {categories.length > 0 && (
+            <Collapsible defaultOpen>
+              <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
+                Categories
+                <ChevronDown className="size-4 text-muted-foreground" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-2 pt-1">
+                {categories.map((category) => (
+                  <label
+                    key={category}
+                    className="flex cursor-pointer items-center gap-2 text-sm"
+                  >
+                    <Checkbox
+                      checked={selectedCategories.includes(category)}
+                      onCheckedChange={() => onCategoryChange(category)}
+                    />
+                    {category}
+                  </label>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+          )}
 
           {/* Seasons */}
-          <Collapsible defaultOpen>
-            <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
-              Seasons
-              <ChevronDown className="size-4 text-muted-foreground" />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-1">
-              <div className="grid grid-cols-4 gap-1.5">
-                {SEASONS.map((season) => {
-                  const isActive = selectedSeasons.includes(season);
-                  return (
-                    <Button
-                      key={season}
-                      variant={isActive ? "default" : "outline"}
-                      size="sm"
-                      className="h-8 text-xs"
-                      onClick={() => onSeasonToggle(season)}
-                    >
-                      S{season}
-                    </Button>
-                  );
-                })}
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+          {seasons.length > 0 && (
+            <Collapsible defaultOpen>
+              <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
+                Seasons
+                <ChevronDown className="size-4 text-muted-foreground" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-1">
+                <div className="grid grid-cols-4 gap-1.5">
+                  {seasons.map((season) => {
+                    const isActive = selectedSeasons.includes(season);
+                    const isGms = season >= 2000;
+                    return (
+                      <Button
+                        key={season}
+                        variant={isActive ? "default" : "outline"}
+                        size="sm"
+                        className={`h-8 text-xs${isGms ? " col-span-2" : ""}`}
+                        onClick={() => onSeasonToggle(season)}
+                      >
+                        {formatSeason(season)}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
         </div>
       </ScrollArea>
     </aside>
