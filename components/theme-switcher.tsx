@@ -28,12 +28,12 @@ export function ThemeSwitcher() {
         <Button variant="outline" size="icon">
           {mounted ? (
             isDark ? (
-              <Moon key="moon" className="h-[1.2rem] w-[1.2rem] animate-theme-icon-in" />
+              <Moon key="moon" className="size-4 animate-theme-icon-in" />
             ) : (
-              <Sun key="sun" className="h-[1.2rem] w-[1.2rem] animate-theme-icon-in" />
+              <Sun key="sun" className="size-4 animate-theme-icon-in" />
             )
           ) : (
-            <span className="inline-block h-[1.2rem] w-[1.2rem]" />
+            <span className="inline-block size-4" />
           )}
           <span className="sr-only">Toggle theme</span>
         </Button>

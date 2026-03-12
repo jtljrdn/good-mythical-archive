@@ -101,9 +101,9 @@ export const FilterSidebar = memo(function FilterSidebar({
           {/* Categories */}
           {categories.length > 0 && (
             <Collapsible defaultOpen>
-              <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
+              <CollapsibleTrigger className="group/collapsible flex w-full items-center justify-between py-2 text-sm font-medium">
                 Categories
-                <ChevronDown className="size-4 text-muted-foreground" />
+                <ChevronDown className="size-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-2 pt-1">
                 {categories.map((category) => (
@@ -125,9 +125,9 @@ export const FilterSidebar = memo(function FilterSidebar({
           {/* Seasons */}
           {seasons.length > 0 && (
             <Collapsible defaultOpen>
-              <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
+              <CollapsibleTrigger className="group/collapsible flex w-full items-center justify-between py-2 text-sm font-medium">
                 Seasons
-                <ChevronDown className="size-4 text-muted-foreground" />
+                <ChevronDown className="size-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-1">
                 <div className="grid grid-cols-4 gap-1.5">

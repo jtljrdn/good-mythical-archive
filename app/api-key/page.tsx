@@ -163,8 +163,12 @@ export default function ApiKeyPage() {
         </CardHeader>
         <CardContent>
           <div className="mb-4">
-            <Link href="docs" className="text-sm text-muted-foreground">
-              <p>View the API reference</p>
+            <Link
+              href="/docs"
+              className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+            >
+              View the API reference
+              <ArrowRight className="size-3.5" />
             </Link>
           </div>
           <div>

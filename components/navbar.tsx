@@ -55,7 +55,7 @@ export function Navbar({ totalEpisodes, filteredCount }: NavbarProps) {
       {/* Center: Nav links (hidden on mobile) */}
       <nav className="hidden items-center gap-1 md:flex">
         {NAV_LINKS.map((link) => (
-          <Button key={link.href} variant="ghost" size="sm">
+          <Button key={link.href} variant="ghost" size="sm" asChild>
             <Link href={link.href}>{link.label}</Link>
           </Button>
         ))}
@@ -78,9 +78,10 @@ export function Navbar({ totalEpisodes, filteredCount }: NavbarProps) {
       {/* Right: Theme switcher + Subscribe + Mobile menu */}
       <div className="flex items-center gap-2">
         <ThemeSwitcher />
-        <Button variant="outline" size="icon">
-          <Link href="https://github.com/jtljrdn/good-mythical-archive">
+        <Button variant="outline" size="icon" asChild>
+          <Link href="https://github.com/jtljrdn/good-mythical-archive" target="_blank" rel="noopener noreferrer">
             <Github className="size-4" />
+            <span className="sr-only">GitHub repository</span>
           </Link>
         </Button>
 
@@ -100,6 +101,7 @@ export function Navbar({ totalEpisodes, filteredCount }: NavbarProps) {
                   key={link.href}
                   variant="ghost"
                   className="justify-start"
+                  asChild
                 >
                   <Link href={link.href}>{link.label}</Link>
                 </Button>

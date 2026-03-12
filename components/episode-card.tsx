@@ -79,20 +79,22 @@ export const EpisodeCard = memo(function EpisodeCard({ episode, priority }: Epis
         </CardContent>
 
         {/* Footer */}
-        <CardFooter className="flex items-center gap-3 px-3 pb-3 pt-3 text-xs text-muted-foreground">
-          {episode.viewCount != null && (
-            <span className="flex items-center gap-1">
-              <Eye className="size-3.5" />
-              {formatViewCount(episode.viewCount)}
-            </span>
-          )}
-          {episode.guests && (
-            <span className="flex items-center gap-1">
-              <Users className="size-3.5" />
-              <span className="truncate max-w-[120px]">{episode.guests}</span>
-            </span>
-          )}
-        </CardFooter>
+        {(episode.viewCount != null || episode.guests) && (
+          <CardFooter className="flex items-center gap-3 px-3 py-2 text-xs text-muted-foreground">
+            {episode.viewCount != null && (
+              <span className="flex items-center gap-1">
+                <Eye className="size-3.5" />
+                {formatViewCount(episode.viewCount)}
+              </span>
+            )}
+            {episode.guests && (
+              <span className="flex items-center gap-1">
+                <Users className="size-3.5" />
+                <span className="truncate max-w-[120px]">{episode.guests}</span>
+              </span>
+            )}
+          </CardFooter>
+        )}
       </Card>
     </a>
   );

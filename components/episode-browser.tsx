@@ -54,10 +54,7 @@ export function EpisodeBrowser({
         query.set("limit", "24");
 
         const res = await fetch(`/api/episodes?${query.toString()}`);
-        if (!res.ok) {
-          console.error("Failed to fetch episodes:", res.status, res.statusText);
-          return;
-        }
+        if (!res.ok) return;
         const data: PaginatedResponse<Episode> = await res.json();
 
         if (append) {
@@ -144,30 +141,28 @@ export function EpisodeBrowser({
   }
 
   return (
-    <>
-      <div className="flex flex-1">
-        <FilterSidebar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          selectedCategories={selectedCategories}
-          onCategoryChange={handleCategoryChange}
-          selectedSeasons={selectedSeasons}
-          onSeasonToggle={handleSeasonToggle}
-          sortOrder={sortOrder}
-          onSortOrderChange={setSortOrder}
-          seasons={seasons}
-          categories={categories}
+    <div className="flex flex-1">
+      <FilterSidebar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        selectedCategories={selectedCategories}
+        onCategoryChange={handleCategoryChange}
+        selectedSeasons={selectedSeasons}
+        onSeasonToggle={handleSeasonToggle}
+        sortOrder={sortOrder}
+        onSortOrderChange={setSortOrder}
+        seasons={seasons}
+        categories={categories}
+      />
+      <main className="flex-1 overflow-auto p-6">
+        <EpisodeGrid
+          episodes={episodes}
+          totalCount={total}
+          isLoading={isLoading}
+          hasMore={page < totalPages}
+          onLoadMore={handleLoadMore}
         />
-        <main className="flex-1 overflow-auto p-6">
-          <EpisodeGrid
-            episodes={episodes}
-            totalCount={total}
-            isLoading={isLoading}
-            hasMore={page < totalPages}
-            onLoadMore={handleLoadMore}
-          />
-        </main>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
