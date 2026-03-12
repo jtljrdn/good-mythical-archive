@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Eye, Users } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -9,9 +10,10 @@ import { formatSeason, formatViewCount } from "@/lib/format";
 
 interface EpisodeCardProps {
   episode: Episode;
+  priority?: boolean;
 }
 
-export function EpisodeCard({ episode }: EpisodeCardProps) {
+export const EpisodeCard = memo(function EpisodeCard({ episode, priority }: EpisodeCardProps) {
   const formattedDate = episode.releaseDate
     ? new Date(episode.releaseDate).toLocaleDateString("en-US", {
         month: "short",
@@ -25,9 +27,9 @@ export function EpisodeCard({ episode }: EpisodeCardProps) {
       href={episode.videoUrl ?? undefined}
       target="_blank"
       rel="noopener noreferrer"
-      className="block"
+      className="group block"
     >
-      <Card className="overflow-hidden transition-all hover:ring-2 hover:ring-primary/30">
+      <Card className="overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:ring-2 hover:ring-primary/30">
         {/* Thumbnail */}
         <div className="relative aspect-video overflow-hidden bg-muted">
           {episode.thumbnailUrl ? (
@@ -35,8 +37,9 @@ export function EpisodeCard({ episode }: EpisodeCardProps) {
               src={episode.thumbnailUrl}
               alt={episode.title ?? "Episode thumbnail"}
               fill
-              className="object-cover"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+              priority={priority}
             />
           ) : (
             <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
@@ -93,4 +96,4 @@ export function EpisodeCard({ episode }: EpisodeCardProps) {
       </Card>
     </a>
   );
-}
+});

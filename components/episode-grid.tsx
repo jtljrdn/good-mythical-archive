@@ -1,5 +1,6 @@
 "use client";
 
+import { SearchX } from "lucide-react";
 import { EpisodeCard } from "@/components/episode-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Episode } from "@/lib/types";
@@ -66,22 +67,37 @@ export function EpisodeGrid({
       </div>
 
       {episodes.length === 0 && !isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-lg font-medium text-muted-foreground">
+        <div className="flex flex-col items-center justify-center py-20 text-center animate-card-enter">
+          <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-muted">
+            <SearchX className="size-7 text-muted-foreground" />
+          </div>
+          <p className="text-lg font-medium">
             No episodes found
           </p>
-          <p className="text-sm text-muted-foreground">
-            Try adjusting your filters or search query.
+          <p className="mt-1 text-sm text-muted-foreground">
+            Try adjusting your filters or search terms.
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {episodes.map((episode) => (
-            <EpisodeCard key={episode.episode} episode={episode} />
+          {episodes.map((episode, index) => (
+            <div
+              key={episode.episode}
+              className="animate-card-enter"
+              style={{ "--stagger": `${Math.min(index % 24, 8) * 50}ms` } as React.CSSProperties}
+            >
+              <EpisodeCard episode={episode} priority={index < 6} />
+            </div>
           ))}
           {isLoading &&
             Array.from({ length: 6 }).map((_, i) => (
-              <EpisodeCardSkeleton key={`skeleton-${i}`} />
+              <div
+                key={`skeleton-${i}`}
+                className="animate-card-enter"
+                style={{ "--stagger": `${i * 75}ms` } as React.CSSProperties}
+              >
+                <EpisodeCardSkeleton />
+              </div>
             ))}
         </div>
       )}

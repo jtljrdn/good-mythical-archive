@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useState } from "react";
 import { Search, ChevronDown, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -29,7 +30,38 @@ interface FilterSidebarProps {
   categories: string[];
 }
 
-export function FilterSidebar({
+function SortButton({
+  sortOrder,
+  onSortOrderChange,
+}: {
+  sortOrder: "asc" | "desc";
+  onSortOrderChange: (order: "asc" | "desc") => void;
+}) {
+  const [spinCount, setSpinCount] = useState(0);
+
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-sm font-medium">Sort by date</span>
+      <Button
+        variant="outline"
+        size="sm"
+        className="h-8 min-w-[6rem] gap-1 text-xs"
+        onClick={() => {
+          setSpinCount((c) => c + 1);
+          onSortOrderChange(sortOrder === "desc" ? "asc" : "desc");
+        }}
+      >
+        <ArrowUpDown
+          className="size-3.5 transition-transform duration-300 ease-out"
+          style={{ transform: `rotate(${spinCount * 360}deg)` }}
+        />
+        {sortOrder === "desc" ? "Newest" : "Oldest"}
+      </Button>
+    </div>
+  );
+}
+
+export const FilterSidebar = memo(function FilterSidebar({
   searchQuery,
   onSearchChange,
   selectedCategories,
@@ -64,20 +96,7 @@ export function FilterSidebar({
           </InputGroup>
 
           {/* Sort Order */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Sort by date</span>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 gap-1 text-xs"
-              onClick={() =>
-                onSortOrderChange(sortOrder === "desc" ? "asc" : "desc")
-              }
-            >
-              <ArrowUpDown className="size-3.5" />
-              {sortOrder === "desc" ? "Newest" : "Oldest"}
-            </Button>
-          </div>
+          <SortButton sortOrder={sortOrder} onSortOrderChange={onSortOrderChange} />
 
           {/* Categories */}
           {categories.length > 0 && (
@@ -135,4 +154,4 @@ export function FilterSidebar({
       </ScrollArea>
     </aside>
   );
-}
+});

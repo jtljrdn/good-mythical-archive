@@ -16,8 +16,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGithub } from "@fortawesome/free-brands-svg-icons";
 
 interface NavLink {
   label: string;
@@ -40,8 +38,8 @@ export function Navbar({ totalEpisodes, filteredCount }: NavbarProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
       {/* Left: Logo */}
-      <div className="flex items-center gap-2">
-        <PlayCircle className="size-7 text-primary" />
+      <Link href="/" className="group flex items-center gap-2">
+        <PlayCircle className="size-7 text-primary transition-transform duration-200 group-hover:scale-110" />
         <div className="flex flex-col">
           <span className="text-sm font-bold leading-tight">
             Mythidex
@@ -52,7 +50,7 @@ export function Navbar({ totalEpisodes, filteredCount }: NavbarProps) {
             </span>
           )}
         </div>
-      </div>
+      </Link>
 
       {/* Center: Nav links (hidden on mobile) */}
       <nav className="hidden items-center gap-1 md:flex">
@@ -82,7 +80,7 @@ export function Navbar({ totalEpisodes, filteredCount }: NavbarProps) {
         <ThemeSwitcher />
         <Button variant="outline" size="icon">
           <Link href="https://github.com/jtljrdn/good-mythical-archive">
-            <FontAwesomeIcon icon={faGithub} />
+            <Github className="size-4" />
           </Link>
         </Button>
 

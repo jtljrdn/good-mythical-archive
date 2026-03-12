@@ -6,11 +6,16 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Navbar } from "@/components/navbar";
 import { PageSkeleton } from "@/components/page-skeleton";
 
-const publicSans = Public_Sans({ subsets: ["latin"], variable: "--font-sans" });
+const publicSans = Public_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const siteDescription =
@@ -32,7 +37,7 @@ export const metadata: Metadata = {
     "archive",
     "Mythidex",
   ],
-  authors: [{ name: "Mythidex" }],
+  authors: [{ name: "Jordan Lee" }, { url: "https://jtlee.dev" }],
   creator: "Mythidex",
   openGraph: {
     type: "website",

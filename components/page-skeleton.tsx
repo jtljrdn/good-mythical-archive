@@ -49,7 +49,13 @@ export function PageSkeleton() {
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 12 }).map((_, i) => (
-              <EpisodeCardSkeleton key={`skeleton-${i}`} />
+              <div
+                key={`skeleton-${i}`}
+                className="animate-card-enter"
+                style={{ "--stagger": `${Math.min(i, 8) * 50}ms` } as React.CSSProperties}
+              >
+                <EpisodeCardSkeleton />
+              </div>
             ))}
           </div>
         </main>
